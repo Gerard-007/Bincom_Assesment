@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Announced Ward Results</title>
+</head>
+<body>
+    <h1>Announced Ward Results</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Ward Name</th>
+                <th>Party Abbreviation</th>
+                <th>Party Score</th>
+                <th>Entered by User</th>
+                <th>Date Entered</th>
+                <th>User IP Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.ward_name }}</td>
+                <td>{{ result.party_abbreviation }}</td>
+                <td>{{ result.party_score }}</td>
+                <td>{{ result.entered_by_user }}</td>
+                <td>{{ result.date_entered }}</td>
+                <td>{{ result.user_ip_address }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

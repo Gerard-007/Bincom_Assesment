@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List of LGAs</title>
+</head>
+<body>
+    <h1>List of LGAs</h1>
+    <ul>
+        {% for lga in lgas %}
+        <li>{{ lga.lga_name }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

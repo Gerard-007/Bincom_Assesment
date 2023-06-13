@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Polling Unit Result
+{% endblock %}
+
+
+{% block content %}
+<br>
+<br>
+<br>
+<br>
+<div class="container mb-5">
+    <div class="row align-items-center">
+        <div class="col-md-5 mt-5">
+            <div class="card bg-secondary border-0">
+                <div class="card-body">
+                    <form role="form" id="lgaForm" method="post">
+                        {% csrf_token %}
+                        <div class="form-group mb-3">
+                            <label for="uniqueid">Select Polling Unit:</label>
+                            <div class="input-group input-group-alternative">
+<!--                                <div class="input-group-prepend">-->
+<!--                                    <span class="input-group-text"><i class="ni ni-email-83"></i></span>-->
+<!--                                </div>-->
+                                <select class="form-control" name="uniqueid" id="uniqueid">
+                                    <option selected>.....</option>
+                                    {% for pu in polling_units %}
+                                        <option value="{{ pu.uniqueid }}">{{ pu.polling_unit_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="button" id="submit_form" class="btn btn-primary btn-lg w-100 my-3">Get Result</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Party Abbreviation</th>
+                        <th>Party Score</th>
+                    </tr>
+                </thead>
+                <tbody id="resultContainer">
+                    {% for result in results %}
+                        <tr>
+                            <td class="text-center">{{ result.result_id }}</td>
+                            <td>{{ result.party_abbreviation }}</td>
+                            <td>{{ result.party_score }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+{% endblock %}
+
+
+{% block js %}
+    <script>
+        $(document).ready(function() {
+            $('#submit_form').on('click', function(event) {
+                event.preventDefault();
+                var uniqueid = $('#uniqueid').val();
+
+                $.ajax({
+                    url: "{% url 'home' %}",
+                    type: 'POST',
+                    data: {
+                        'uniqueid': uniqueid,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === "success") {
+                            console.log(`response.results: ${response.results.length}`);
+                            if (response.results.length === 0) {
+                                toastr.options.timeOut = 5000;
+                                toastr.warning("No result available for now.");
+                            } else {
+                                var resultContainer = $("#resultContainer");
+                                resultContainer.empty();
+                                $.each(response.results, function(index, result) {
+                                    resultContainer.append(`
+                                        <tr>
+                                            <td class="text-center">${result.result_id}</td>
+                                            <td>${result.party_abbreviation}</td>
+                                            <td>${result.party_score}</td>
+                                        </tr>
+                                    `);
+                                });
+                                toastr.options.timeOut = 5000;
+                                toastr.success(response.message);
+                            }
+                        } else {
+                            toastr.options.timeOut = 5000;
+                            toastr.error("Error: No result found");
+                        }
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ': ' + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

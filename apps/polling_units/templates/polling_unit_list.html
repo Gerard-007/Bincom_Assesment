@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List of Polling Units</title>
+</head>
+<body>
+    <h1>List of Polling Units</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Polling Unit ID</th>
+                <th>Ward ID</th>
+                <th>LGA ID</th>
+                <th>Polling Unit Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for polling_unit in polling_units %}
+            <tr>
+                <td>{{ polling_unit.polling_unit_id }}</td>
+                <td>{{ polling_unit.ward_id }}</td>
+                <td>{{ polling_unit.lga_id }}</td>
+                <td>{{ polling_unit.polling_unit_name }}</td>
+                <td>{{ polling_unit.polling_unit_description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

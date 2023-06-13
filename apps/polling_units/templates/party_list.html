@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List of Parties</title>
+</head>
+<body>
+    <h1>List of Parties</h1>
+    <ul>
+        {% for party in parties %}
+        <li>{{ party.partyname }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List of Wards</title>
+</head>
+<body>
+    <h1>List of Wards</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Ward ID</th>
+                <th>Ward Name</th>
+                <th>LGA ID</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ward in wards %}
+            <tr>
+                <td>{{ ward.ward_id }}</td>
+                <td>{{ ward.ward_name }}</td>
+                <td>{{ ward.lga_id }}</td>
+                <td>{{ ward.ward_description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

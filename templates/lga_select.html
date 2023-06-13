@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    LGA Score
+{% endblock %}
+
+
+{% block content %}
+<br>
+<br>
+<br>
+<br>
+<div class="container mb-5">
+    <div class="row align-items-center">
+        <div class="col-md-5 mt-5">
+            <div class="card bg-secondary border-0">
+                <div class="card-body px-lg-5 py-lg-5">
+                    <form role="form" id="lgaForm" method="post">
+                        {% csrf_token %}
+                        <div class="form-group mb-3">
+                            <label for="lga">Select State:</label>
+                            <div class="input-group input-group-alternative">
+                                <select class="form-control" name="state" id="state">
+                                    <option value="" selected>.....</option>
+                                    {% for s in states %}
+                                        <option value="{{ s.state_id }}">{{ s.state_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="lga">Select Local Government:</label>
+                            <div class="input-group input-group-alternative">
+                                <select class="form-control lgaContainer" name="lga" id="lga">
+                                    <option selected>.....</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="button" id="submit_form" class="btn btn-primary btn-lg w-100 my-3">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7 mt-0">
+            <h5>Local Government: {{ lga.lga_name }}</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Party Abbreviation</th>
+                        <th>Total Score</th>
+                    </tr>
+                </thead>
+                <tbody id="resultContainer">
+                    {% for party, score in total_result.items %}
+                        <tr>
+                            <td>{{ party }}</td>
+                            <td>{{ score }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+{% endblock %}
+
+
+{% block js %}
+    <script>
+        $(document).ready(function() {
+            $('#state').on('change', function(event) {
+                event.preventDefault();
+                var stateId = $('#state').val();
+                $.ajax({
+                    url: {% url 'get_state_lga' %},
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        'stateId': stateId,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        var lgaContainer = $('.lgaContainer');
+                        lgaContainer.empty();
+
+                        console.log(`response: ${response}`);
+                        if (response.lgas.length > 0) {
+                            // Display the summed total result
+                            $.each(response.lgas, function(index, lga) {
+                                lgaContainer.append(`
+                                    <option value="${lga.fields.lga_id}">${lga.fields.lga_name}</option>
+                                `);
+                            });
+                            toastr.options.timeOut = 5000;
+                            toastr.success("Data fetched successfully");
+                        } else {
+                            toastr.options.timeOut = 5000;
+                            toastr.warning("No available score for selected LGA");
+                        }
+                    }
+                });
+            });
+
+            $('#submit_form').on('click', function(event) {
+                event.preventDefault();
+                var lgaId = $('#lga').val();
+                $.ajax({
+                    url: {% url 'lga_total_result' %},
+                    type: 'POST',
+                    data: {
+                        'lga': lgaId,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        var resultContainer = $('#resultContainer');
+                        resultContainer.empty();
+                        console.log(`response: ${response}`);
+                        if ($.isEmptyObject(response)) {
+                            toastr.options.timeOut = 5000;
+                            toastr.warning("No available score for selected LGA");
+                        } else {
+                            // Display the summed total result
+                            $.each(response, function(party, score) {
+                                resultContainer.append(`
+                                    <tr>
+                                        <td>${party}</td>
+                                        <td>${score}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ': ' + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
